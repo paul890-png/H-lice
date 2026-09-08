@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Article — Hélice</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --navy: #1E3A4C; --sand: #F7F1E6; --ink: #22303A; --ink-soft: #5B6B74; --line: #E3DACB;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--sand);color:var(--ink);font-family:'Work Sans', sans-serif;line-height:1.6;}
+  h1,h2{font-family:'Fraunces', serif;color:var(--navy);}
+  a{color:inherit;}
+  img{max-width:100%;display:block;border-radius:12px;}
+  header.site{background:var(--navy);color:#fff;padding:16px 5vw;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces', serif;font-size:1.3rem;font-weight:700;text-decoration:none;color:#fff;}
+  .brand img{width:32px;height:32px;border-radius:8px;background:#fff;padding:3px;}
+  .btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,.5);color:#fff;border-radius:999px;padding:10px 18px;font-size:.9rem;text-decoration:none;}
+  .section{max-width:720px;margin:0 auto;padding:30px 5vw 70px;}
+  .post-date{color:var(--ink-soft);font-size:.85rem;margin-bottom:18px;}
+  .post-content{white-space:pre-line;font-size:1.02rem;margin-top:20px;}
+  .empty{text-align:center;padding:60px 20px;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <a class="brand" href="index.html"><img src="logo.png" alt="Hélice"> Hélice</a>
+  <a class="btn-outline" href="blog.html">← Blog</a>
+</header>
+
+<section class="section" id="content">
+  <div class="empty">Chargement...</div>
+</section>
+
+<script>
+const SUPABASE_URL = 'https://habcdsgqcyfpdrnvwunz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhYmNkc2dxY3lmcGRybnZ3dW56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MDY2NDQsImV4cCI6MjEwNDA4MjY0NH0.wlJklpJ4dS9kc0Yc6ntxG81EVtnaDf_flHk3P4J3Dwk';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+async function loadPost(){
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  const content = document.getElementById('content');
+  if(!id){ content.innerHTML = '<div class="empty">Article introuvable.</div>'; return; }
+  const { data: p, error } = await supabaseClient.from('blog_posts').select('*').eq('id', id).maybeSingle();
+  if(error || !p){ content.innerHTML = '<div class="empty">Cet article n\'existe plus.</div>'; return; }
+  const dateLabel = new Date(p.created_at).toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric'});
+  content.innerHTML = `
+    <h1>${escapeHtml(p.title)}</h1>
+    <div class="post-date">Publié le ${dateLabel}</div>
+    ${p.cover_image_url ? `<img src="${p.cover_image_url}">` : ''}
+    <div class="post-content">${escapeHtml(p.content)}</div>
+  `;
+}
+loadPost();
+</script>
+</body>
+</html>

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administration — Hélice</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --navy: #1E3A4C;
+    --sand: #F7F1E6;
+    --card: #FFFFFF;
+    --gold: #D99B2B;
+    --ink: #22303A;
+    --ink-soft: #5B6B74;
+    --line: #E3DACB;
+    --danger: #D6336C;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--sand);color:var(--ink);font-family:'Work Sans', sans-serif;}
+  h1,h2{font-family:'Fraunces', serif;color:var(--navy);margin:0 0 .3em;}
+  header.site{background:var(--navy);color:#fff;padding:16px 5vw;display:flex;align-items:center;justify-content:space-between;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces', serif;font-size:1.3rem;font-weight:700;}
+  .brand img{width:32px;height:32px;border-radius:8px;background:#fff;padding:3px;}
+  main{max-width:900px;margin:0 auto;padding:40px 5vw;}
+  .btn{border:none;border-radius:999px;padding:11px 20px;font-weight:600;font-size:.9rem;cursor:pointer;}
+  .btn-gold{background:var(--gold);color:#2B1B02;}
+  .btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,.5);color:#fff;}
+  .login-box{
+    max-width:380px;margin:60px auto;background:var(--card);
+    border:1px solid var(--line);border-radius:16px;padding:30px;
+  }
+  .login-box .field{margin-bottom:14px;}
+  .login-box label{display:block;font-size:.85rem;font-weight:600;color:var(--navy);margin-bottom:6px;}
+  .login-box input{
+    width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--line);
+    font-family:inherit;font-size:.95rem;
+  }
+  .login-box button{width:100%;margin-top:8px;}
+  .error-msg{color:var(--danger);font-size:.85rem;margin-top:10px;}
+
+  table{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden;}
+  th, td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);font-size:.9rem;}
+  th{background:#EFE7D6;color:var(--navy);}
+  .del-btn{background:var(--danger);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:.8rem;font-weight:600;}
+  .del-btn[disabled]{opacity:.6;cursor:not-allowed;}
+  .admin-tab-btn{background:transparent;border:1.5px solid var(--navy);color:var(--navy);padding:10px 16px;}
+  .admin-tab-btn.active-tab{background:var(--navy);color:#fff;}
+  .block-btn{border:none;border-radius:8px;padding:7px 14px;font-size:.8rem;font-weight:600;background:var(--danger);color:#fff;}
+  .unblock-btn{border:none;border-radius:8px;padding:7px 14px;font-size:.8rem;font-weight:600;background:#1a7a4c;color:#fff;}
+  .status-blocked{color:var(--danger);font-weight:600;}
+  .status-active{color:#1a7a4c;font-weight:600;}
+  .spinner{
+    display:inline-block;width:14px;height:14px;
+    border:2px solid rgba(255,255,255,.4);border-top-color:#fff;
+    border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .empty{color:var(--ink-soft);text-align:center;padding:40px;}
+  #app-section{display:none;}
+  .overlay{position:fixed;inset:0;background:rgba(20,28,33,.55);display:none;align-items:flex-start;justify-content:center;padding:5vh 16px;overflow-y:auto;z-index:100;}
+  .overlay.open{display:flex;}
+  .modal{background:var(--card);border-radius:18px;max-width:560px;width:100%;padding:26px 24px 30px;margin-top:20px;}
+  .modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+  .modal-close{background:none;border:none;font-size:1.3rem;color:var(--ink-soft);}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:.85rem;font-weight:600;color:var(--navy);margin-bottom:6px;}
+  .field input, .field textarea{width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);font-family:inherit;font-size:.92rem;}
+  .field textarea{resize:vertical;}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="brand"><img src="logo.png" alt="Hélice"> Hélice — Admin</div>
+  <button class="btn btn-outline" id="logout-btn" style="display:none;" onclick="logout()">Déconnexion</button>
+</header>
+
+<main>
+  <div class="login-box" id="login-section">
+    <h2>Connexion</h2>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="login-email">
+    </div>
+    <div class="field">
+      <label>Mot de passe</label>
+      <input type="password" id="login-password">
+    </div>
+    <button class="btn btn-gold" id="login-btn" onclick="login()"><span id="login-btn-text">Se connecter</span></button>
+    <div class="error-msg" id="login-error"></div>
+  </div>
+
+  <div id="app-section">
+    <div style="display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;">
+      <button class="btn admin-tab-btn active-tab" id="tab-listings" onclick="switchAdminTab('listings')">Annonces</button>
+      <button class="btn admin-tab-btn" id="tab-requests" onclick="switchAdminTab('requests')">Demandes de suppression</button>
+      <button class="btn admin-tab-btn" id="tab-accounts" onclick="switchAdminTab('accounts')">Comptes annonceurs</button>
+      <button class="btn admin-tab-btn" id="tab-messages" onclick="switchAdminTab('messages')">Messages d'aide</button>
+      <button class="btn admin-tab-btn" id="tab-settings" onclick="switchAdminTab('settings')">Paramètres</button>
+      <button class="btn admin-tab-btn" id="tab-blog" onclick="switchAdminTab('blog')">Blog</button>
+    </div>
+
+    <div id="panel-listings">
+      <h1>Gestion des annonces</h1>
+      <p style="color:var(--ink-soft);margin-bottom:14px;">Suppression uniquement — pour modifier une annonce, supprime-la et republie-la depuis le site.</p>
+      <div class="field" style="max-width:320px;margin-bottom:18px;">
+        <label>Filtrer par compte</label>
+        <select id="account-filter" onchange="renderListingsTable()">
+          <option value="all">Tous les comptes</option>
+        </select>
+      </div>
+      <table id="admin-table">
+        <thead>
+          <tr><th>Titre</th><th>Compte</th><th>Ville</th><th>Prix</th><th>Publié le</th><th></th></tr>
+        </thead>
+        <tbody id="admin-tbody"></tbody>
+      </table>
+      <div class="empty" id="admin-empty" style="display:none;">Aucune annonce.</div>
+    </div>
+
+    <div id="panel-requests" style="display:none;">
+      <h1>Demandes de suppression</h1>
+      <p style="color:var(--ink-soft);margin-bottom:24px;">Envoyées par les annonceurs une fois le délai de modification d'1h dépassé.</p>
+      <table id="requests-table">
+        <thead>
+          <tr><th>Annonce</th><th>Demandée le</th><th>Statut</th><th></th></tr>
+        </thead>
+        <tbody id="requests-tbody"></tbody>
+      </table>
+      <div class="empty" id="requests-empty" style="display:none;">Aucune demande en attente.</div>
+    </div>
+
+    <div id="panel-accounts" style="display:none;">
+      <h1>Comptes annonceurs</h1>
+      <p style="color:var(--ink-soft);margin-bottom:24px;">Bloquer un compte masque ses annonces et l'empêche de publier.</p>
+      <table id="accounts-table">
+        <thead>
+          <tr><th>Compte</th><th>Email</th><th>Statut</th><th></th></tr>
+        </thead>
+        <tbody id="accounts-tbody"></tbody>
+      </table>
+      <div class="empty" id="accounts-empty" style="display:none;">Aucun compte.</div>
+    </div>
+
+    <div id="panel-messages" style="display:none;">
+      <h1>Messages d'aide</h1>
+      <table id="messages-table">
+        <thead>
+          <tr><th>De</th><th>Message</th><th>Reçu le</th><th></th></tr>
+        </thead>
+        <tbody id="messages-tbody"></tbody>
+      </table>
+      <div class="empty" id="messages-empty" style="display:none;">Aucun message.</div>
+    </div>
+
+    <div id="panel-settings" style="display:none;">
+      <h1>Paramètres</h1>
+      <div class="field" style="max-width:400px;">
+        <label>Email de réception des messages d'aide</label>
+        <input type="email" id="settings-email" placeholder="ton-email@exemple.com">
+      </div>
+      <button class="btn btn-gold" onclick="saveSettings()" id="settings-save-btn"><span id="settings-save-text">Enregistrer</span></button>
+      <div class="error-msg" id="settings-msg" style="color:#1a7a4c;"></div>
+    </div>
+
+    <div id="panel-blog" style="display:none;">
+      <h1>Blog</h1>
+      <button class="btn btn-gold" onclick="openBlogForm()" style="margin-bottom:20px;">+ Nouvel article</button>
+      <table id="blog-table">
+        <thead><tr><th>Titre</th><th>Publié le</th><th></th></tr></thead>
+        <tbody id="blog-tbody"></tbody>
+      </table>
+      <div class="empty" id="blog-empty" style="display:none;">Aucun article.</div>
+    </div>
+  </div>
+</main>
+
+<div class="overlay" id="blog-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="blog-form-title">Nouvel article</h2>
+      <button class="modal-close" onclick="closeBlogForm()">✕</button>
+    </div>
+    <form id="blog-form">
+      <input type="hidden" id="blog-id">
+      <div class="field"><label>Titre</label><input type="text" id="blog-title" required></div>
+      <div class="field"><label>Image de couverture (optionnel)</label><input type="file" id="blog-cover" accept="image/*"></div>
+      <div class="field"><label>Contenu</label><textarea id="blog-content" style="min-height:220px;" required></textarea></div>
+      <button type="submit" class="btn btn-gold" id="blog-submit-btn" style="width:100%;"><span id="blog-submit-text">Publier</span></button>
+    </form>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://habcdsgqcyfpdrnvwunz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhYmNkc2dxY3lmcGRybnZ3dW56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MDY2NDQsImV4cCI6MjEwNDA4MjY0NH0.wlJklpJ4dS9kc0Yc6ntxG81EVtnaDf_flHk3P4J3Dwk';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+async function login(){
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+  const btnText = document.getElementById('login-btn-text');
+  errEl.textContent = '';
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span> Connexion...';
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  btn.disabled = false;
+  btnText.textContent = 'Se connecter';
+  if(error){
+    errEl.textContent = "Connexion impossible. Vérifie l'email et le mot de passe.";
+    return;
+  }
+  showApp();
+}
+
+async function logout(){
+  await supabaseClient.auth.signOut();
+  document.getElementById('login-section').style.display = 'block';
+  document.getElementById('app-section').style.display = 'none';
+  document.getElementById('logout-btn').style.display = 'none';
+}
+
+async function showApp(){
+  document.getElementById('login-section').style.display = 'none';
+  document.getElementById('app-section').style.display = 'block';
+  document.getElementById('logout-btn').style.display = 'inline-block';
+  await loadProfilesMap();
+  await loadListings();
+  await loadRequests();
+}
+
+function switchAdminTab(tab){
+  const panels = ['listings','requests','accounts','messages','settings','blog'];
+  panels.forEach(p => {
+    document.getElementById('panel-'+p).style.display = (p===tab) ? 'block' : 'none';
+    document.getElementById('tab-'+p).classList.toggle('active-tab', p===tab);
+  });
+  if(tab==='requests') loadRequests();
+  if(tab==='accounts') loadAccounts();
+  if(tab==='messages') loadMessages();
+  if(tab==='settings') loadSettings();
+  if(tab==='blog') loadBlogPosts();
+}
+
+// ---- Profils (pour affichage + filtre par compte) ----
+let profilesMap = {};
+async function loadProfilesMap(){
+  const { data } = await supabaseClient.from('profiles').select('*');
+  profilesMap = {};
+  (data || []).forEach(p => { profilesMap[p.user_id] = p; });
+  const select = document.getElementById('account-filter');
+  select.innerHTML = '<option value="all">Tous les comptes</option>' +
+    Object.values(profilesMap).map(p =>
+      `<option value="${p.user_id}">${escapeHtml(p.username || p.email || p.user_id.slice(0,8))}</option>`
+    ).join('');
+}
+function accountLabel(userId){
+  const p = profilesMap[userId];
+  if(!p) return '—';
+  return escapeHtml(p.username || p.email || userId.slice(0,8));
+}
+
+// ---- Demandes de suppression ----
+async function loadRequests(){
+  const { data, error } = await supabaseClient
+    .from('delete_requests')
+    .select('*, annonces(title)')
+    .order('created_at', { ascending:false });
+  const tbody = document.getElementById('requests-tbody');
+  const emptyEl = document.getElementById('requests-empty');
+  if(error || !data || !data.length){
+    tbody.innerHTML = '';
+    emptyEl.style.display = 'block';
+    emptyEl.textContent = error ? 'Erreur de chargement.' : 'Aucune demande en attente.';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  tbody.innerHTML = data.map(r => {
+    const dateLabel = new Date(r.created_at).toLocaleDateString('fr-FR');
+    const titre = r.annonces?.title || '(annonce déjà supprimée)';
+    return `<tr>
+      <td>${escapeHtml(titre)}</td>
+      <td>${dateLabel}</td>
+      <td>${r.status === 'traite' ? 'Traité' : 'En attente'}</td>
+      <td>
+        ${r.status !== 'traite' ? `<button class="del-btn" onclick="handleDeleteRequest(${r.id}, ${r.annonce_id}, this)">Supprimer l'annonce</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function handleDeleteRequest(requestId, annonceId, btn){
+  if(!confirm("Supprimer définitivement cette annonce ?")) return;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  if(annonceId){
+    await supabaseClient.from('annonces').delete().eq('id', annonceId);
+  }
+  await supabaseClient.from('delete_requests').update({ status:'traite' }).eq('id', requestId);
+  await loadRequests();
+  await loadListings();
+}
+
+// ---- Annonces ----
+let allListings = [];
+async function loadListings(){
+  const { data, error } = await supabaseClient.from('annonces').select('*').order('created_at', {ascending:false});
+  allListings = data || [];
+  if(error){
+    document.getElementById('admin-tbody').innerHTML = '';
+    document.getElementById('admin-empty').style.display = 'block';
+    document.getElementById('admin-empty').textContent = "Erreur de chargement.";
+    return;
+  }
+  renderListingsTable();
+}
+
+function renderListingsTable(){
+  const filterId = document.getElementById('account-filter').value;
+  const list = filterId === 'all' ? allListings : allListings.filter(l => l.user_id === filterId);
+  const tbody = document.getElementById('admin-tbody');
+  const emptyEl = document.getElementById('admin-empty');
+  if(!list.length){
+    tbody.innerHTML = '';
+    emptyEl.style.display = 'block';
+    emptyEl.textContent = 'Aucune annonce.';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  tbody.innerHTML = list.map(l => {
+    const priceLabel = l.price_on_request ? 'Sur demande' : (l.price ? '$' + Number(l.price).toLocaleString('fr-FR') : '—');
+    const dateLabel = new Date(l.created_at).toLocaleDateString('fr-FR');
+    const locationLabel = l.city === 'Kinshasa' && l.commune ? `${l.commune}, Kinshasa` : l.city;
+    return `<tr>
+      <td>${escapeHtml(l.title)}</td>
+      <td>${accountLabel(l.user_id)}</td>
+      <td>${escapeHtml(locationLabel || '')}</td>
+      <td>${priceLabel}</td>
+      <td>${dateLabel}</td>
+      <td><button class="del-btn" onclick="deleteListing(${l.id}, this)">Supprimer</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function deleteListing(id, btn){
+  if(!confirm('Supprimer définitivement cette annonce ?')) return;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  const { error } = await supabaseClient.from('annonces').delete().eq('id', id);
+  if(error){
+    alert("Suppression impossible.");
+    btn.disabled = false;
+    btn.textContent = 'Supprimer';
+    return;
+  }
+  await loadListings();
+}
+
+// ---- Comptes annonceurs ----
+async function loadAccounts(){
+  const { data, error } = await supabaseClient.from('profiles').select('*').order('created_at', {ascending:false});
+  const tbody = document.getElementById('accounts-tbody');
+  const emptyEl = document.getElementById('accounts-empty');
+  if(error || !data || !data.length){
+    tbody.innerHTML = '';
+    emptyEl.style.display = 'block';
+    emptyEl.textContent = error ? 'Erreur de chargement.' : 'Aucun compte.';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  tbody.innerHTML = data.map(p => {
+    return `<tr>
+      <td>${escapeHtml(p.username || '(sans nom)')}</td>
+      <td>${escapeHtml(p.email || '—')}</td>
+      <td class="${p.blocked ? 'status-blocked' : 'status-active'}">${p.blocked ? 'Bloqué' : 'Actif'}</td>
+      <td>
+        ${p.blocked
+          ? `<button class="unblock-btn" onclick="toggleBlock('${p.user_id}', false, this)">Débloquer</button>`
+          : `<button class="block-btn" onclick="toggleBlock('${p.user_id}', true, this)">Bloquer</button>`
+        }
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function toggleBlock(userId, blocked, btn){
+  const label = blocked ? 'bloquer' : 'débloquer';
+  if(!confirm(`Confirmer : ${label} ce compte ?`)) return;
+  btn.disabled = true;
+  const { error } = await supabaseClient.from('profiles').update({ blocked }).eq('user_id', userId);
+  if(error){
+    alert("Action impossible : " + error.message);
+    btn.disabled = false;
+    return;
+  }
+  await loadProfilesMap();
+  await loadAccounts();
+  await loadListings();
+}
+
+// ---- Messages d'aide ----
+async function loadMessages(){
+  const { data, error } = await supabaseClient.from('help_messages').select('*').order('created_at', {ascending:false});
+  const tbody = document.getElementById('messages-tbody');
+  const emptyEl = document.getElementById('messages-empty');
+  if(error || !data || !data.length){
+    tbody.innerHTML = '';
+    emptyEl.style.display = 'block';
+    emptyEl.textContent = error ? 'Erreur de chargement.' : 'Aucun message.';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  tbody.innerHTML = data.map(m => {
+    const dateLabel = new Date(m.created_at).toLocaleDateString('fr-FR', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    return `<tr>
+      <td>${escapeHtml(m.name || '')} <br><span style="color:var(--ink-soft);font-size:.78rem;">${escapeHtml(m.email)}</span></td>
+      <td style="max-width:320px;white-space:pre-line;">${escapeHtml(m.message)}</td>
+      <td>${dateLabel}</td>
+      <td>${m.status === 'traite' ? 'Traité' : `<button class="del-btn" style="background:var(--navy);" onclick="markMessageDone(${m.id}, this)">Marquer traité</button>`}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function markMessageDone(id, btn){
+  btn.disabled = true;
+  await supabaseClient.from('help_messages').update({ status:'traite' }).eq('id', id);
+  await loadMessages();
+}
+
+// ---- Paramètres ----
+async function loadSettings(){
+  const { data } = await supabaseClient.from('settings').select('*').eq('id', 1).maybeSingle();
+  document.getElementById('settings-email').value = data?.notify_email || '';
+}
+async function saveSettings(){
+  const btn = document.getElementById('settings-save-btn');
+  const btnText = document.getElementById('settings-save-text');
+  const msgEl = document.getElementById('settings-msg');
+  const email = document.getElementById('settings-email').value.trim();
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span> Enregistrement...';
+  const { error } = await supabaseClient.from('settings').update({ notify_email: email }).eq('id', 1);
+  btn.disabled = false;
+  btnText.textContent = 'Enregistrer';
+  msgEl.textContent = error ? "Échec de l'enregistrement." : 'Enregistré avec succès.';
+  setTimeout(() => msgEl.textContent = '', 3000);
+}
+
+// ---- Blog ----
+async function loadBlogPosts(){
+  const { data, error } = await supabaseClient.from('blog_posts').select('*').order('created_at', {ascending:false});
+  const tbody = document.getElementById('blog-tbody');
+  const emptyEl = document.getElementById('blog-empty');
+  if(error || !data || !data.length){
+    tbody.innerHTML = '';
+    emptyEl.style.display = 'block';
+    emptyEl.textContent = error ? 'Erreur de chargement.' : 'Aucun article.';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  tbody.innerHTML = data.map(p => {
+    const dateLabel = new Date(p.created_at).toLocaleDateString('fr-FR');
+    return `<tr>
+      <td>${escapeHtml(p.title)}</td>
+      <td>${dateLabel}</td>
+      <td>
+        <button class="del-btn" style="background:var(--navy);" onclick="openBlogForm(${p.id})">Modifier</button>
+        <button class="del-btn" onclick="deleteBlogPost(${p.id}, this)">Supprimer</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+let editingPostCover = null;
+async function openBlogForm(id){
+  editingPostCover = null;
+  document.getElementById('blog-form').reset();
+  document.getElementById('blog-id').value = '';
+  document.getElementById('blog-form-title').textContent = 'Nouvel article';
+  document.getElementById('blog-submit-text').textContent = 'Publier';
+  if(id){
+    const { data: p } = await supabaseClient.from('blog_posts').select('*').eq('id', id).maybeSingle();
+    if(p){
+      document.getElementById('blog-id').value = p.id;
+      document.getElementById('blog-title').value = p.title;
+      document.getElementById('blog-content').value = p.content;
+      document.getElementById('blog-form-title').textContent = 'Modifier l\'article';
+      document.getElementById('blog-submit-text').textContent = 'Enregistrer';
+    }
+  }
+  document.getElementById('blog-overlay').classList.add('open');
+}
+function closeBlogForm(){ document.getElementById('blog-overlay').classList.remove('open'); }
+
+document.getElementById('blog-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const id = document.getElementById('blog-id').value;
+  const btn = document.getElementById('blog-submit-btn');
+  const btnText = document.getElementById('blog-submit-text');
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span> Publication...';
+  try{
+    const updates = {
+      title: document.getElementById('blog-title').value.trim(),
+      content: document.getElementById('blog-content').value.trim(),
+    };
+    const coverFile = document.getElementById('blog-cover').files[0];
+    if(coverFile){
+      const path = `${Date.now()}-${coverFile.name}`;
+      const { error: upErr } = await supabaseClient.storage.from('photos').upload(path, coverFile);
+      if(upErr) throw upErr;
+      const { data: pub } = supabaseClient.storage.from('photos').getPublicUrl(path);
+      updates.cover_image_url = pub.publicUrl;
+    }
+    if(id){
+      const { error } = await supabaseClient.from('blog_posts').update(updates).eq('id', id);
+      if(error) throw error;
+    } else {
+      const { data:{ session } } = await supabaseClient.auth.getSession();
+      updates.author_id = session.user.id;
+      const { error } = await supabaseClient.from('blog_posts').insert(updates);
+      if(error) throw error;
+    }
+    closeBlogForm();
+    await loadBlogPosts();
+  }catch(err){
+    alert("Échec : " + (err.message || 'réessaie.'));
+  }finally{
+    btn.disabled = false;
+    btnText.textContent = id ? 'Enregistrer' : 'Publier';
+  }
+});
+
+async function deleteBlogPost(id, btn){
+  if(!confirm('Supprimer définitivement cet article ?')) return;
+  btn.disabled = true;
+  await supabaseClient.from('blog_posts').delete().eq('id', id);
+  await loadBlogPosts();
+}
+
+// Restore session on load
+(async () => {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if(session) showApp();
+})();
+</script>
+</body>
+</html>

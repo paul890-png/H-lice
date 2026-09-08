@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hélice — Louer et vendre un bien immobilier à Kinshasa, Lubumbashi, Goma</title>
+<meta name="description" content="Annonces immobilières en RDC : appartements, maisons, studios, terrains et bureaux à louer ou à vendre à Kinshasa, Lubumbashi et Goma. Contactez les annonceurs directement par WhatsApp, SMS ou appel.">
+<meta name="keywords" content="immobilier Kinshasa, appartement à louer Kinshasa, maison à vendre RDC, location Gombe, immobilier Lubumbashi, immobilier Goma, annonces immobilières RDC">
+<link rel="canonical" href="https://helice-theta.vercel.app/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hélice — Annonces immobilières en RDC">
+<meta property="og:description" content="Louez et vendez un bien à Kinshasa, Lubumbashi ou Goma. Contact direct par WhatsApp, SMS ou appel.">
+<meta property="og:image" content="https://helice-theta.vercel.app/logo.png">
+<meta property="og:url" content="https://helice-theta.vercel.app/">
+<meta property="og:locale" content="fr_CD">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hélice — Annonces immobilières en RDC">
+<meta name="twitter:description" content="Louez et vendez un bien à Kinshasa, Lubumbashi ou Goma.">
+<meta name="twitter:image" content="https://helice-theta.vercel.app/logo.png">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --navy: #1E3A4C;
+    --navy-light: #2C5170;
+    --sand: #F7F1E6;
+    --card: #FFFFFF;
+    --gold: #D99B2B;
+    --terracotta: #C1571F;
+    --ink: #22303A;
+    --ink-soft: #5B6B74;
+    --line: #E3DACB;
+    --whatsapp: #25D366;
+    --call: #D6336C;
+    --radius: 14px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--sand);color:var(--ink);font-family:'Work Sans', sans-serif;line-height:1.5;}
+  h1,h2,h3{font-family:'Fraunces', serif;margin:0 0 .3em 0;color:var(--navy);font-weight:600;}
+  a{color:inherit;}
+  img{max-width:100%;display:block;}
+  button{font-family:inherit;cursor:pointer;}
+
+  header.site{background:var(--navy);color:#fff;padding:16px 5vw;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces', serif;font-size:1.35rem;font-weight:700;letter-spacing:.2px;}
+  .brand img{flex-shrink:0;width:34px;height:34px;border-radius:8px;background:#fff;padding:3px;}
+  header.site nav{display:flex;gap:10px;align-items:center;}
+  .user-box{position:relative;}
+  .user-avatar{
+    width:34px;height:34px;border-radius:50%;
+    background:var(--gold);color:#2B1B02;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font-size:.95rem;flex-shrink:0;overflow:hidden;
+  }
+  .user-dropdown{
+    position:absolute;top:44px;right:0;background:#fff;color:var(--ink);
+    border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+    font-size:.82rem;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.18);
+    display:none;z-index:60;
+  }
+  .user-dropdown.open{display:block;}
+  .user-dropdown a{color:var(--navy);text-decoration:underline;cursor:pointer;display:block;margin-top:8px;}
+  .user-dropdown a.logout-link{color:var(--danger,#D6336C);}
+  .nav-stack{display:flex;flex-direction:column;align-items:flex-end;gap:5px;position:relative;}
+  .hamburger-btn{background:transparent;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1;padding:2px 4px;}
+  .main-menu{
+    position:absolute;top:calc(100% + 6px);right:0;background:#fff;color:var(--ink);
+    border:1px solid var(--line);border-radius:10px;padding:10px 0;
+    min-width:180px;box-shadow:0 10px 28px rgba(0,0,0,.2);display:none;z-index:70;
+  }
+  .main-menu.open{display:block;}
+  .main-menu a{display:block;padding:9px 16px;font-size:.88rem;color:var(--ink);text-decoration:none;cursor:pointer;}
+  .main-menu a:hover{background:var(--sand);}
+  .main-menu a.logout-link{color:var(--danger,#D6336C);}
+  .auth-tabs{display:flex;gap:8px;margin-bottom:18px;}
+  .auth-tab{flex:1;text-align:center;padding:10px;border-radius:10px;border:1.5px solid var(--line);background:#fff;color:var(--ink-soft);font-weight:600;font-size:.9rem;cursor:pointer;}
+  .auth-tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .auth-msg{font-size:.85rem;margin-top:10px;}
+  .auth-msg.error{color:var(--danger,#D6336C);}
+  .auth-msg.success{color:#1a7a4c;}
+  .cooldown-box{text-align:center;padding:10px 6px 4px;}
+  .cooldown-ring{position:relative;width:140px;height:140px;margin:0 auto 16px;}
+  .cooldown-ring svg{transform:rotate(-90deg);width:140px;height:140px;}
+  .cooldown-ring circle{fill:none;stroke-width:10;}
+  .cooldown-ring .bg{stroke:var(--line);}
+  .cooldown-ring .fg{stroke:var(--gold);stroke-linecap:round;transition:stroke-dashoffset 1s linear;}
+  .cooldown-ring .label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:'Fraunces',serif;color:var(--navy);}
+  .cooldown-ring .label strong{font-size:1.3rem;}
+  .cooldown-ring .label span{font-size:.7rem;color:var(--ink-soft);font-family:'Work Sans',sans-serif;}
+  .btn{border:none;border-radius:999px;padding:11px 22px;font-weight:600;font-size:.95rem;display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease, box-shadow .15s ease;}
+  .btn:active{transform:scale(.97);}
+  .btn-gold{background:var(--gold);color:#2B1B02;}
+  .btn-gold:hover{box-shadow:0 6px 16px rgba(217,155,43,.4);}
+  .btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,.5);color:#fff;}
+  .btn-outline:hover{border-color:#fff;}
+
+  .hero{padding:64px 5vw 40px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;max-width:1180px;margin:0 auto;}
+  .hero h1{font-size:clamp(2.1rem, 4vw, 3.1rem);line-height:1.12;}
+  .hero p.lead{color:var(--ink-soft);font-size:1.08rem;max-width:46ch;margin:16px 0 28px;}
+  .hero .actions{display:flex;gap:12px;flex-wrap:wrap;}
+  .btn-lg{padding:14px 26px;font-size:1rem;}
+  .btn-navy{background:var(--navy);color:#fff;}
+  .btn-navy:hover{box-shadow:0 6px 16px rgba(30,58,76,.35);}
+  .hero-art{background:var(--navy);border-radius:24px;overflow:hidden;display:flex;align-items:center;justify-content:center;aspect-ratio:6/5;}
+  .hero-art img{width:100%;height:100%;object-fit:cover;}
+
+  .section{max-width:1180px;margin:0 auto;padding:10px 5vw 70px;}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;gap:16px;flex-wrap:wrap;}
+  .section-head p{color:var(--ink-soft);margin:6px 0 0;}
+
+  /* Filter bar */
+  .filters{
+    background:#fff;border:1px solid var(--line);border-radius:14px;
+    padding:14px;display:flex;flex-wrap:wrap;gap:10px;margin-bottom:26px;
+    align-items:center;
+  }
+  .filters select, .filters input[type=text]{
+    padding:9px 12px;border-radius:10px;border:1.5px solid var(--line);
+    font-family:inherit;font-size:.86rem;background:var(--sand);color:var(--ink);
+  }
+  .filters input[type=text]{flex:1 1 180px;min-width:150px;}
+  .filters select{flex:0 1 auto;}
+  .filters .clear-btn{
+    background:none;border:1.5px solid var(--line);border-radius:10px;
+    padding:9px 12px;font-size:.82rem;color:var(--ink-soft);
+  }
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:26px;}
+  .card{background:var(--card);border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);display:flex;flex-direction:column;}
+  .carousel{position:relative;aspect-ratio:4/3;background:#dcd3c1;overflow:hidden;}
+  .carousel img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;opacity:0;transition:opacity .35s ease;}
+  .carousel img.active{opacity:1;}
+  .carousel .empty-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8b8064;font-size:.9rem;}
+  .carousel-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(30,58,76,.55);color:#fff;border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;}
+  .carousel-nav.prev{left:8px;}
+  .carousel-nav.next{right:8px;}
+  .dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px;}
+  .dots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55);}
+  .dots span.active{background:#fff;width:16px;border-radius:4px;}
+  .transaction-badge{
+    position:absolute;top:8px;left:8px;
+    padding:5px 12px;border-radius:999px;font-size:.72rem;font-weight:700;color:#fff;
+  }
+  .transaction-badge.location{background:var(--gold);color:#2B1B02;}
+  .transaction-badge.vente{background:var(--terracotta);}
+
+  .card-body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:8px;flex:1;}
+  .price{color:var(--gold);font-family:'Fraunces',serif;font-weight:700;font-size:1.25rem;}
+  .card-title{font-size:1.05rem;font-weight:600;color:var(--navy);}
+  .meta{display:flex;gap:14px;flex-wrap:wrap;color:var(--ink-soft);font-size:.88rem;}
+  .meta span{display:flex;align-items:center;gap:5px;}
+  .desc{color:var(--ink-soft);font-size:.9rem;margin:2px 0 6px;}
+
+  .contact-row{margin-top:auto;display:flex;gap:8px;}
+  .pill{flex:1;border:none;border-radius:999px;padding:11px 10px;color:#fff;font-weight:700;font-size:.82rem;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;}
+  .pill svg{width:15px;height:15px;flex-shrink:0;}
+  .pill-sms{background:var(--gold);}
+  .pill-wa{background:var(--whatsapp);}
+  .pill-call{background:var(--call);}
+  .pill:hover{filter:brightness(1.06);}
+
+  .empty-state{text-align:center;padding:60px 20px;color:var(--ink-soft);border:1.5px dashed var(--line);border-radius:var(--radius);}
+
+  .overlay{position:fixed;inset:0;background:rgba(20,28,33,.55);display:none;align-items:flex-start;justify-content:center;padding:5vh 16px;overflow-y:auto;z-index:100;}
+  .overlay.open{display:flex;}
+  .modal{background:var(--card);border-radius:18px;max-width:580px;width:100%;padding:30px 28px 34px;margin-top:20px;}
+  .modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+  .modal-close{background:none;border:none;font-size:1.3rem;color:var(--ink-soft);line-height:1;padding:4px;}
+  form .field{margin-bottom:16px;}
+  form label{display:block;font-size:.85rem;font-weight:600;color:var(--navy);margin-bottom:6px;}
+  form input[type=text], form input[type=tel], form input[type=number], form select, form textarea{
+    width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--line);
+    font-family:inherit;font-size:.95rem;background:#fff;color:var(--ink);
+  }
+  form textarea{resize:vertical;min-height:80px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .price-row{display:flex;align-items:center;gap:10px;}
+  .price-row input[type=checkbox]{width:16px;height:16px;}
+  .hint{font-size:.78rem;color:var(--ink-soft);margin-top:5px;}
+
+  .photo-zone{border:1.5px dashed var(--line);border-radius:12px;padding:16px;text-align:center;color:var(--ink-soft);cursor:pointer;font-size:.9rem;}
+  .photo-zone:hover{border-color:var(--gold);}
+  .previews{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .preview-thumb{position:relative;width:64px;height:64px;border-radius:8px;overflow:hidden;border:1px solid var(--line);}
+  .preview-thumb img{width:100%;height:100%;object-fit:cover;}
+  .preview-thumb button{position:absolute;top:2px;right:2px;background:rgba(30,58,76,.75);color:#fff;border:none;width:18px;height:18px;border-radius:50%;font-size:.65rem;line-height:1;}
+  .submit-row{margin-top:22px;}
+  .submit-row .btn{width:100%;justify-content:center;}
+  .submit-row .btn[disabled]{opacity:.7;cursor:not-allowed;}
+  .spinner{
+    display:inline-block;width:16px;height:16px;
+    border:2px solid rgba(255,255,255,.4);border-top-color:#fff;
+    border-radius:50%;animation:spin .7s linear infinite;
+  }
+  .spinner.dark{border-color:rgba(30,58,76,.25);border-top-color:var(--navy);}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-row{
+    grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:10px;
+    padding:50px 20px;color:var(--ink-soft);font-size:.9rem;
+  }
+
+  footer{background:var(--navy);color:rgba(255,255,255,.75);padding:28px 5vw;text-align:center;font-size:.85rem;}
+  footer strong{color:#fff;}
+  footer a.admin-link{color:rgba(255,255,255,.5);text-decoration:underline;font-size:.78rem;display:inline-block;margin-top:8px;}
+  .help-box{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px 24px;max-width:600px;margin:0 auto;}
+  .help-box form .row2{margin-bottom:0;}
+
+  @media (max-width: 760px){
+    .hero{grid-template-columns:1fr;padding-top:40px;}
+    .hero-art{order:-1;padding:20px;}
+    .row2{grid-template-columns:1fr;}
+    .filters{gap:8px;}
+    .filters select, .filters input[type=text]{font-size:.8rem;padding:8px 10px;flex:1 1 46%;}
+  }
+  @media (max-width: 480px){
+    header.site{padding:12px 4vw;}
+    header.site nav{gap:6px;}
+    header.site .btn-outline{display:none;}
+    header.site .btn-gold{padding:9px 14px;font-size:.85rem;}
+    .brand{font-size:1.1rem;}
+    .brand img{width:28px;height:28px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="brand">
+    <img src="logo.png" alt="Hélice">
+    Hélice
+  </div>
+  <nav>
+    <div class="user-box" id="user-box"></div>
+    <button class="btn btn-outline" onclick="document.getElementById('listings').scrollIntoView({behavior:'smooth'})">Parcourir</button>
+    <div class="nav-stack">
+      <button class="btn btn-gold" onclick="handlePublishClick()">Publier une annonce</button>
+      <button class="hamburger-btn" onclick="toggleMainMenu(event)" aria-label="Menu">☰</button>
+      <div class="main-menu" id="main-menu">
+        <a href="index.html">Accueil</a>
+        <a href="profile.html">Mon profil</a>
+        <a onclick="closeMainMenu();handlePublishClick()">Publier une annonce</a>
+        <a href="blog.html">Blog</a>
+        <a href="#help" onclick="closeMainMenu()">Aide</a>
+        <a onclick="logout()" id="menu-logout" class="logout-link" style="display:none;">Se déconnecter</a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div>
+    <h1>Louez et vendez en RDC, sans intermédiaire.</h1>
+    <p class="lead">Publiez votre bien avec jusqu'à 5 photos. Les visiteurs vous contactent en un clic, par SMS, WhatsApp ou appel direct.</p>
+    <div class="actions">
+      <button class="btn btn-navy btn-lg" onclick="handlePublishClick()">Publier mon annonce</button>
+      <button class="btn btn-outline btn-lg" style="border-color:var(--navy);color:var(--navy);" onclick="document.getElementById('listings').scrollIntoView({behavior:'smooth'})">Voir les annonces</button>
+    </div>
+  </div>
+  <div class="hero-art">
+    <img src="hero.jpg" alt="Hélice — annonces immobilières" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'color:rgba(255,255,255,.5);font-size:.85rem;padding:20px;text-align:center;\'>Ajoute un fichier hero.jpg dans le dossier du site pour afficher ta photo ici.</div>';">
+  </div>
+</section>
+
+<section class="section" id="listings">
+  <div class="section-head">
+    <div>
+      <h2>Annonces</h2>
+      <p>Biens publiés par des particuliers en RDC.</p>
+    </div>
+  </div>
+
+  <div class="filters">
+    <input type="text" id="fl-search" placeholder="Rechercher un titre ou un mot-clé...">
+    <select id="fl-sort">
+      <option value="recent">Plus récent d'abord</option>
+      <option value="rooms">Nombre de pièces</option>
+    </select>
+    <button class="btn btn-outline" style="border-color:var(--navy);color:var(--navy);position:relative;" onclick="openFiltersModal()">
+      Filtres <span id="filters-badge" style="display:none;background:var(--terracotta);color:#fff;border-radius:999px;font-size:.7rem;padding:2px 7px;margin-left:4px;">0</span>
+    </button>
+    <button class="clear-btn" onclick="clearFilters()">Réinitialiser</button>
+  </div>
+
+  <div class="overlay" id="filters-overlay">
+    <div class="modal" style="max-width:440px;">
+      <div class="modal-head">
+        <h2>Filtres</h2>
+        <button class="modal-close" onclick="closeFiltersModal()">✕</button>
+      </div>
+      <div class="field">
+        <label>Transaction</label>
+        <select id="fl-transaction">
+          <option value="all">Location / Vente</option>
+          <option value="location">À louer</option>
+          <option value="vente">À vendre</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Type de bien</label>
+        <select id="fl-type">
+          <option value="all">Tous les types</option>
+          <option value="Appartement">Appartement</option>
+          <option value="Maison">Maison</option>
+          <option value="Studio">Studio</option>
+          <option value="Terrain">Terrain</option>
+          <option value="Bureau">Bureau</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Ville</label>
+        <select id="fl-city">
+          <option value="all">Toutes les villes</option>
+          <option value="Kinshasa">Kinshasa</option>
+          <option value="Lubumbashi">Lubumbashi</option>
+          <option value="Goma">Goma</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Commune</label>
+        <select id="fl-commune" style="display:none;">
+          <option value="all">Toutes les communes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Prix</label>
+        <select id="fl-price">
+          <option value="all">Tous les prix</option>
+          <option value="0-50">0 - 50 $</option>
+          <option value="50-150">50 - 150 $</option>
+          <option value="150-250">150 - 250 $</option>
+          <option value="250-350">250 - 350 $</option>
+          <option value="350-500">350 - 500 $</option>
+          <option value="500-750">500 - 750 $</option>
+          <option value="750-1000">750 - 1000 $</option>
+          <option value="1000-999999">1000 $ et plus</option>
+        </select>
+      </div>
+      <div class="submit-row">
+        <button class="btn btn-navy" onclick="applyFiltersModal()">Appliquer les filtres</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="search-indicator" style="display:none;color:var(--ink-soft);font-size:.92rem;margin-bottom:14px;"></div>
+  <div class="grid" id="grid">
+    <div class="loading-row"><span class="spinner dark"></span> Chargement des annonces...</div>
+  </div>
+</section>
+
+<section class="section" id="help" style="padding-top:0;">
+  <div class="help-box">
+    <h2>Besoin d'aide ?</h2>
+    <p style="color:var(--ink-soft);margin-bottom:18px;">Une question, un problème avec une annonce ? Écris-nous, on te répond rapidement.</p>
+    <form id="help-form">
+      <div class="row2">
+        <div class="field"><label>Ton nom (optionnel)</label><input type="text" id="help-name"></div>
+        <div class="field"><label>Ton email</label><input type="email" id="help-email" required></div>
+      </div>
+      <div class="field"><label>Message</label><textarea id="help-message" required placeholder="Décris ton problème ou ta question..."></textarea></div>
+      <button type="submit" class="btn btn-navy" id="help-submit-btn"><span id="help-submit-text">Envoyer</span></button>
+      <div class="auth-msg" id="help-msg"></div>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <strong>Hélice</strong> — RDC. Publiez et contactez directement les annonceurs.
+  <br>
+  <a class="admin-link" href="admin.html">Espace administration</a>
+</footer>
+
+<div class="overlay" id="auth-overlay">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-head">
+      <h2 id="auth-title">Se connecter</h2>
+      <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Se connecter</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Créer un compte</button>
+    </div>
+    <p class="hint" style="margin-bottom:14px;">Un compte est nécessaire pour publier une annonce.</p>
+    <form id="auth-form">
+      <div class="field" id="signup-username-field" style="display:none;">
+        <label>Nom d'utilisateur</label>
+        <input type="text" id="auth-username" placeholder="Ex : Paul O.">
+      </div>
+      <div class="field" id="signup-avatar-field" style="display:none;">
+        <label>Photo de profil (optionnel)</label>
+        <div class="photo-zone" onclick="document.getElementById('auth-avatar').click()">Touchez pour choisir une photo</div>
+        <input type="file" id="auth-avatar" accept="image/*" style="display:none">
+        <div class="previews" id="auth-avatar-preview"></div>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="auth-email" required>
+      </div>
+      <div class="field">
+        <label>Mot de passe</label>
+        <input type="password" id="auth-password" required minlength="6">
+      </div>
+      <div class="submit-row">
+        <button type="submit" class="btn btn-navy" id="auth-submit-btn"><span id="auth-submit-text">Se connecter</span></button>
+      </div>
+      <div class="auth-msg" id="auth-msg"></div>
+    </form>
+  </div>
+</div>
+
+<div class="overlay" id="cooldown-overlay">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-head">
+      <h2>Prochaine publication</h2>
+      <button class="modal-close" onclick="closeCooldownModal()">✕</button>
+    </div>
+    <div class="cooldown-box">
+      <div class="cooldown-ring">
+        <svg viewBox="0 0 140 140">
+          <circle class="bg" cx="70" cy="70" r="60"></circle>
+          <circle class="fg" id="cooldown-circle" cx="70" cy="70" r="60"></circle>
+        </svg>
+        <div class="label">
+          <strong id="cooldown-time">--</strong>
+          <span>restant</span>
+        </div>
+      </div>
+      <p class="hint">Tu peux publier une annonce toutes les 12 heures. Reviens un peu plus tard !</p>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Publier une annonce</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <p class="hint" style="margin-bottom:18px;">Vos photos et votre numéro serviront à générer les boutons de contact.</p>
+    <form id="listing-form">
+      <div class="field">
+        <label>Titre de l'annonce</label>
+        <input type="text" id="f-title" placeholder="Ex : Appartement moderne à louer" required>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Type de bien</label>
+          <select id="f-type">
+            <option>Appartement</option>
+            <option>Maison</option>
+            <option>Studio</option>
+            <option>Terrain</option>
+            <option>Bureau</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Transaction</label>
+          <select id="f-transaction">
+            <option value="location">À louer</option>
+            <option value="vente">À vendre</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Ville</label>
+          <select id="f-city">
+            <option value="Kinshasa">Kinshasa</option>
+            <option value="Lubumbashi">Lubumbashi</option>
+            <option value="Goma">Goma</option>
+          </select>
+        </div>
+        <div class="field" id="f-commune-wrap">
+          <label>Commune</label>
+          <select id="f-commune"></select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Nombre de pièces</label>
+        <input type="number" id="f-rooms" min="1" placeholder="Ex : 7">
+      </div>
+
+      <div class="field">
+        <label>Prix (USD)</label>
+        <div class="price-row">
+          <input type="number" id="f-price" min="0" placeholder="Ex : 800">
+          <label style="display:flex;align-items:center;gap:6px;font-weight:400;white-space:nowrap;">
+            <input type="checkbox" id="f-price-demande"> Prix sur demande
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Description</label>
+        <textarea id="f-desc" placeholder="Décrivez le bien : état, équipements, accès..."></textarea>
+      </div>
+
+      <div class="field">
+        <label>Numéro de téléphone (pour SMS, WhatsApp et appel)</label>
+        <input type="tel" id="f-phone" placeholder="Ex : 0899 123 456" required>
+        <p class="hint">Format local (RDC) ou international. Il sera utilisé pour les 3 boutons de contact.</p>
+      </div>
+
+      <div class="field">
+        <label>Photos (5 maximum)</label>
+        <div class="photo-zone" onclick="document.getElementById('f-photos').click()">
+          Touchez ici pour ajouter des photos
+        </div>
+        <input type="file" id="f-photos" accept="image/*" multiple style="display:none">
+        <div class="previews" id="previews"></div>
+      </div>
+
+      <div class="submit-row">
+        <button type="submit" class="btn btn-navy" id="submit-btn"><span id="submit-btn-text">Publier l'annonce</span></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://habcdsgqcyfpdrnvwunz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhYmNkc2dxY3lmcGRybnZ3dW56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MDY2NDQsImV4cCI6MjEwNDA4MjY0NH0.wlJklpJ4dS9kc0Yc6ntxG81EVtnaDf_flHk3P4J3Dwk';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const KINSHASA_COMMUNES = ["Bandalungwa","Barumbu","Bumbu","Gombe","Kalamu","Kasa-Vubu","Kimbanseke","Kinshasa","Kintambo","Kisenso","Lemba","Limete","Lingwala","Makala","Maluku","Masina","Matete","Mont-Ngafula","Ndjili","Ngaba","Ngaliema","Ngiri-Ngiri","Nsele","Selembao"];
+
+let pendingPhotos = []; // {file, previewUrl}
+let currentSession = null;
+let currentProfile = null;
+let authMode = 'login';
+let cooldownInterval = null;
+
+async function initAuth(){
+  const { data:{ session } } = await supabaseClient.auth.getSession();
+  currentSession = session;
+  if(currentSession){
+    await applyPendingProfileIfAny();
+    await loadProfile();
+  }
+  updateAuthUI();
+  supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+    currentSession = session;
+    if(currentSession){
+      await loadProfile();
+    } else {
+      currentProfile = null;
+    }
+    updateAuthUI();
+  });
+}
+
+async function loadProfile(){
+  if(!currentSession){ currentProfile = null; return; }
+  const { data } = await supabaseClient.from('profiles').select('*').eq('user_id', currentSession.user.id).maybeSingle();
+  if(data){
+    currentProfile = data;
+    if(!data.email){
+      await supabaseClient.from('profiles').update({ email: currentSession.user.email }).eq('user_id', currentSession.user.id);
+      currentProfile.email = currentSession.user.email;
+    }
+  } else {
+    await supabaseClient.from('profiles').upsert({ user_id: currentSession.user.id, email: currentSession.user.email });
+    const { data: fresh } = await supabaseClient.from('profiles').select('*').eq('user_id', currentSession.user.id).maybeSingle();
+    currentProfile = fresh || null;
+  }
+}
+
+async function applyPendingProfileIfAny(){
+  if(!currentSession) return;
+  const key = 'pendingProfile_' + currentSession.user.email;
+  const raw = localStorage.getItem(key);
+  if(!raw) return;
+  try{
+    const pending = JSON.parse(raw);
+    let avatarUrl = null;
+    if(pending.avatarDataUrl){
+      const blob = await (await fetch(pending.avatarDataUrl)).blob();
+      const path = `${currentSession.user.id}-${Date.now()}.jpg`;
+      const { error: upErr } = await supabaseClient.storage.from('avatars').upload(path, blob, { upsert:true });
+      if(!upErr){
+        const { data: pub } = supabaseClient.storage.from('avatars').getPublicUrl(path);
+        avatarUrl = pub.publicUrl;
+      }
+    }
+    await supabaseClient.from('profiles').upsert({
+      user_id: currentSession.user.id,
+      username: pending.username || null,
+      avatar_url: avatarUrl
+    });
+    localStorage.removeItem(key);
+  }catch(e){ console.error('Profil en attente non appliqué', e); }
+}
+
+function updateAuthUI(){
+  const box = document.getElementById('user-box');
+  const menuLogout = document.getElementById('menu-logout');
+  if(currentSession){
+    menuLogout.style.display = 'block';
+    const letter = (currentProfile?.username || currentSession.user.email).charAt(0).toUpperCase();
+    const avatarInner = currentProfile?.avatar_url
+      ? `<img src="${currentProfile.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+      : escapeHtml(letter);
+    box.innerHTML = `
+      <div class="user-avatar" onclick="toggleUserDropdown(event)">${avatarInner}</div>
+      <div class="user-dropdown" id="user-dropdown">
+        ${escapeHtml(currentProfile?.username || currentSession.user.email)}
+        <a href="profile.html">Mon profil</a>
+        <a onclick="logout()" class="logout-link">Se déconnecter</a>
+      </div>`;
+  } else {
+    menuLogout.style.display = 'none';
+    box.innerHTML = '';
+  }
+}
+
+function toggleUserDropdown(e){
+  if(e) e.stopPropagation();
+  document.getElementById('user-dropdown').classList.toggle('open');
+}
+document.addEventListener('click', function(e){
+  const box = document.getElementById('user-box');
+  const dropdown = document.getElementById('user-dropdown');
+  if(dropdown && dropdown.classList.contains('open') && box && !box.contains(e.target)){
+    dropdown.classList.remove('open');
+  }
+  const menu = document.getElementById('main-menu');
+  const stack = document.querySelector('.nav-stack');
+  if(menu && menu.classList.contains('open') && stack && !stack.contains(e.target)){
+    menu.classList.remove('open');
+  }
+});
+
+function toggleMainMenu(e){
+  if(e) e.stopPropagation();
+  document.getElementById('main-menu').classList.toggle('open');
+}
+function closeMainMenu(){
+  document.getElementById('main-menu').classList.remove('open');
+}
+
+async function logout(){
+  await supabaseClient.auth.signOut();
+  currentSession = null;
+  updateAuthUI();
+}
+
+function openAuthModal(mode){
+  switchAuthTab(mode || 'login');
+  document.getElementById('auth-msg').textContent = '';
+  document.getElementById('auth-overlay').classList.add('open');
+}
+function closeAuthModal(){ document.getElementById('auth-overlay').classList.remove('open'); }
+
+function switchAuthTab(mode){
+  authMode = mode;
+  document.getElementById('tab-login').classList.toggle('active', mode==='login');
+  document.getElementById('tab-signup').classList.toggle('active', mode==='signup');
+  document.getElementById('auth-title').textContent = mode==='login' ? 'Se connecter' : 'Créer un compte';
+  document.getElementById('auth-submit-text').textContent = mode==='login' ? 'Se connecter' : 'Créer mon compte';
+  document.getElementById('auth-msg').textContent = '';
+  document.getElementById('signup-username-field').style.display = mode==='signup' ? 'block' : 'none';
+  document.getElementById('signup-avatar-field').style.display = mode==='signup' ? 'block' : 'none';
+}
+
+let pendingAvatarFile = null;
+document.getElementById('auth-avatar').addEventListener('change', async function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    pendingAvatarFile = await compressImage(file, 400, 0.8);
+  }catch(err){
+    pendingAvatarFile = file;
+  }
+  document.getElementById('auth-avatar-preview').innerHTML =
+    `<div class="preview-thumb"><img src="${URL.createObjectURL(pendingAvatarFile)}"></div>`;
+});
+
+document.getElementById('auth-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const msgEl = document.getElementById('auth-msg');
+  const btn = document.getElementById('auth-submit-btn');
+  const btnText = document.getElementById('auth-submit-text');
+  msgEl.className = 'auth-msg';
+  msgEl.textContent = '';
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span> Patiente...';
+
+  if(authMode === 'signup'){
+    const username = document.getElementById('auth-username').value.trim();
+    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    btn.disabled = false;
+    btnText.textContent = 'Créer mon compte';
+    if(error){
+      msgEl.classList.add('error');
+      msgEl.textContent = error.message.includes('already registered') || error.message.includes('already exists')
+        ? "Un compte existe déjà avec cet email. Essaie de te connecter."
+        : "Impossible de créer le compte : " + error.message;
+      return;
+    }
+    if(username || pendingAvatarFile){
+      const pending = { username: username || null, avatarDataUrl: null };
+      if(pendingAvatarFile){
+        pending.avatarDataUrl = await new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(pendingAvatarFile);
+        });
+      }
+      try{ localStorage.setItem('pendingProfile_' + email, JSON.stringify(pending)); }catch(e){}
+    }
+    msgEl.classList.add('success');
+    msgEl.textContent = "Compte créé ! Vérifie ta boîte mail et clique sur le lien de confirmation avant de publier.";
+    this.reset();
+    pendingAvatarFile = null;
+    document.getElementById('auth-avatar-preview').innerHTML = '';
+  } else {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    btn.disabled = false;
+    btnText.textContent = 'Se connecter';
+    if(error){
+      msgEl.classList.add('error');
+      msgEl.textContent = "Connexion impossible. Vérifie ton email et ton mot de passe (et que ton compte est confirmé).";
+      return;
+    }
+    currentSession = data.session;
+    await applyPendingProfileIfAny();
+    await loadProfile();
+    updateAuthUI();
+    closeAuthModal();
+    await proceedToPublish();
+  }
+});
+
+async function handlePublishClick(){
+  if(!currentSession){
+    openAuthModal('login');
+    return;
+  }
+  if(currentProfile?.blocked){
+    alert("Ton compte a été bloqué par l'administrateur. Contacte le support si tu penses que c'est une erreur.");
+    return;
+  }
+  await proceedToPublish();
+}
+
+async function proceedToPublish(){
+  const remaining = await getCooldownRemaining();
+  if(remaining > 0){
+    openCooldownModal(remaining);
+    return;
+  }
+  openModal();
+}
+
+async function getCooldownRemaining(){
+  if(!currentSession) return 0;
+  const { data, error } = await supabaseClient
+    .from('annonces')
+    .select('created_at')
+    .eq('user_id', currentSession.user.id)
+    .order('created_at', { ascending:false })
+    .limit(1);
+  if(error || !data || !data.length) return 0;
+  const last = new Date(data[0].created_at).getTime();
+  const next = last + 12*60*60*1000;
+  const remaining = next - Date.now();
+  return remaining > 0 ? remaining : 0;
+}
+
+function openCooldownModal(remainingMs){
+  document.getElementById('cooldown-overlay').classList.add('open');
+  const circle = document.getElementById('cooldown-circle');
+  const timeLabel = document.getElementById('cooldown-time');
+  const radius = 60;
+  const circumference = 2 * Math.PI * radius;
+  circle.style.strokeDasharray = `${circumference}`;
+  const totalMs = 12*60*60*1000;
+
+  function tick(){
+    const frac = Math.max(0, Math.min(1, remainingMs / totalMs));
+    circle.style.strokeDashoffset = `${circumference * (1 - frac)}`;
+    const h = Math.floor(remainingMs / 3600000);
+    const m = Math.floor((remainingMs % 3600000) / 60000);
+    timeLabel.textContent = `${h}h${String(m).padStart(2,'0')}`;
+    remainingMs -= 1000;
+    if(remainingMs <= 0){
+      clearInterval(cooldownInterval);
+      timeLabel.textContent = 'Prêt !';
+    }
+  }
+  tick();
+  if(cooldownInterval) clearInterval(cooldownInterval);
+  cooldownInterval = setInterval(tick, 1000);
+}
+function closeCooldownModal(){
+  document.getElementById('cooldown-overlay').classList.remove('open');
+  if(cooldownInterval) clearInterval(cooldownInterval);
+}
+
+function normalizePhone(raw){
+  let d = raw.replace(/\D/g,'');
+  if(d.startsWith('00')) d = d.slice(2);
+  if(d.startsWith('0')) d = '243' + d.slice(1);
+  else if(!d.startsWith('243') && d.length <= 10) d = '243' + d;
+  return d;
+}
+
+function iconSMS(){return '<svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H7l-3 3V4z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';}
+function iconWA(){return '<svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm5.7 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1.1.1-1.7-.1-.4-.1-1-.3-1.6-.6-2.9-1.2-4.8-4.1-4.9-4.3-.1-.2-1.2-1.6-1.2-3 0-1.4.8-2.1 1-2.4.2-.2.5-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.9.8 2 .1.2.1.4 0 .6-.1.2-.2.3-.3.5-.2.2-.3.3-.5.5-.2.2-.3.4-.1.7.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.5 1.5.3.1.5.1.7-.1.2-.2.7-.8.9-1.1.2-.3.4-.2.6-.1.2.1 1.5.7 1.8.8.3.1.5.2.5.3.1.2.1.7-.1 1.3z"/></svg>';}
+function iconCall(){return '<svg viewBox="0 0 24 24" fill="none"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>';}
+function iconPin(){return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none"><path d="M12 21s7-6.3 7-11.5A7 7 0 0 0 5 9.5C5 14.7 12 21 12 21z" stroke="#5B6B74" stroke-width="1.6"/><circle cx="12" cy="9.5" r="2.3" stroke="#5B6B74" stroke-width="1.6"/></svg>';}
+function iconRoom(){return '<svg viewBox="0 0 24 24" width="14" height="14" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#5B6B74" stroke-width="1.6"/><path d="M12 3v18M3 12h18" stroke="#5B6B74" stroke-width="1.6"/></svg>';}
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+// ---- Filter bar setup ----
+const flCommune = document.getElementById('fl-commune');
+KINSHASA_COMMUNES.forEach(c => {
+  const opt = document.createElement('option');
+  opt.value = c; opt.textContent = c;
+  flCommune.appendChild(opt);
+});
+document.getElementById('fl-city').addEventListener('change', e => {
+  flCommune.style.display = e.target.value === 'Kinshasa' ? 'inline-block' : 'none';
+  flCommune.value = 'all';
+});
+['fl-search','fl-sort'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener(id === 'fl-search' ? 'input' : 'change', debounce(render, 250));
+});
+function debounce(fn, ms){
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+
+function openFiltersModal(){ document.getElementById('filters-overlay').classList.add('open'); }
+function closeFiltersModal(){ document.getElementById('filters-overlay').classList.remove('open'); }
+function applyFiltersModal(){
+  updateFiltersBadge();
+  closeFiltersModal();
+  render();
+}
+function updateFiltersBadge(){
+  const ids = ['fl-transaction','fl-type','fl-city','fl-price'];
+  const count = ids.filter(id => document.getElementById(id).value !== 'all').length
+    + (document.getElementById('fl-city').value === 'Kinshasa' && flCommune.value !== 'all' ? 1 : 0);
+  const badge = document.getElementById('filters-badge');
+  if(count > 0){ badge.style.display = 'inline-block'; badge.textContent = count; }
+  else { badge.style.display = 'none'; }
+}
+
+function clearFilters(){
+  document.getElementById('fl-search').value = '';
+  document.getElementById('fl-transaction').value = 'all';
+  document.getElementById('fl-type').value = 'all';
+  document.getElementById('fl-city').value = 'all';
+  flCommune.value = 'all';
+  flCommune.style.display = 'none';
+  document.getElementById('fl-price').value = 'all';
+  document.getElementById('fl-sort').value = 'recent';
+  updateFiltersBadge();
+  render();
+}
+
+async function render(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '<div class="loading-row"><span class="spinner dark"></span> Chargement des annonces...</div>';
+  const search = document.getElementById('fl-search').value.trim();
+  const searchIndicator = document.getElementById('search-indicator');
+  if(search){
+    searchIndicator.style.display = 'block';
+    searchIndicator.textContent = `Voici les résultats pour "${search}"`;
+  } else {
+    searchIndicator.style.display = 'none';
+  }
+  const transaction = document.getElementById('fl-transaction').value;
+  const type = document.getElementById('fl-type').value;
+  const city = document.getElementById('fl-city').value;
+  const commune = flCommune.value;
+  const priceBracket = document.getElementById('fl-price').value;
+  const sort = document.getElementById('fl-sort').value;
+
+  let query = supabaseClient.from('annonces').select('*');
+  if(transaction !== 'all') query = query.eq('transaction', transaction);
+  if(type !== 'all') query = query.eq('type', type);
+  if(city !== 'all') query = query.eq('city', city);
+  if(city === 'Kinshasa' && commune !== 'all') query = query.eq('commune', commune);
+  if(priceBracket !== 'all'){
+    const [min, max] = priceBracket.split('-').map(Number);
+    query = query.eq('price_on_request', false).gte('price', min).lte('price', max);
+  }
+  if(search) query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+  if(sort === 'recent') query = query.order('created_at', {ascending:false});
+  if(sort === 'rooms') query = query.order('rooms', {ascending:false, nullsFirst:false});
+
+  const { data, error } = await query;
+  if(error){
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Impossible de charger les annonces. Vérifie ta connexion Supabase.</div>`;
+    console.error(error);
+    return;
+  }
+  if(!data || data.length === 0){
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;">Aucune annonce ne correspond à ces critères.</div>';
+    return;
+  }
+
+  grid.innerHTML = data.map((l, idx) => {
+    const phoneDigits = normalizePhone(l.phone);
+    const msg = encodeURIComponent('Bonjour, je suis intéressé(e) par votre annonce sur Hélice : ' + l.title);
+    const waLink = 'https://wa.me/' + phoneDigits + '?text=' + msg;
+    const telLink = 'tel:+' + phoneDigits;
+    const smsLink = 'sms:+' + phoneDigits + '?body=' + msg;
+    const photos = l.photos && l.photos.length ? l.photos : [];
+    const slides = photos.length
+      ? photos.map((p,i) => `<img src="${p}" class="${i===0?'active':''}" data-i="${i}">`).join('')
+      : '<div class="empty-ph">Pas de photo</div>';
+    const dots = photos.length > 1
+      ? `<div class="dots">${photos.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('')}</div>`
+      : '';
+    const arrows = photos.length > 1
+      ? `<button class="carousel-nav prev" onclick="event.preventDefault();event.stopPropagation();shiftPhoto(${idx},-1)">‹</button><button class="carousel-nav next" onclick="event.preventDefault();event.stopPropagation();shiftPhoto(${idx},1)">›</button>`
+      : '';
+    const priceLabel = l.price_on_request ? 'Prix sur demande' : (l.price ? '$' + Number(l.price).toLocaleString('fr-FR') : 'Prix sur demande');
+    const locationLabel = l.city === 'Kinshasa' && l.commune ? `${l.commune}, Kinshasa` : l.city;
+    const badgeClass = l.transaction === 'vente' ? 'vente' : 'location';
+    const badgeLabel = l.transaction === 'vente' ? 'À vendre' : 'À louer';
+    return `
+    <div class="card">
+      <a href="detail.html?id=${l.id}" style="display:block;color:inherit;text-decoration:none;">
+      <div class="carousel" data-idx="${idx}">
+        ${slides}
+        <div class="transaction-badge ${badgeClass}">${badgeLabel}</div>
+        ${dots}
+        ${arrows}
+      </div>
+      <div class="card-body">
+        <div class="price">${priceLabel}</div>
+        <div class="card-title">${escapeHtml(l.title)}</div>
+        <div class="meta">
+          <span>${iconPin()} ${escapeHtml(locationLabel)}</span>
+          ${l.rooms ? `<span>${iconRoom()} ${l.rooms} pièces</span>` : ''}
+        </div>
+        ${l.description ? `<div class="desc">${escapeHtml(l.description)}</div>` : ''}
+      </div>
+      </a>
+      <div class="card-body" style="padding-top:0;">
+        <div class="contact-row">
+          <a class="pill pill-sms" href="${smsLink}" onclick="logClick(${l.id},'sms')">${iconSMS()} SMS</a>
+          <a class="pill pill-wa" href="${waLink}" target="_blank" rel="noopener" onclick="logClick(${l.id},'whatsapp')">${iconWA()} WhatsApp</a>
+          <a class="pill pill-call" href="${telLink}" onclick="logClick(${l.id},'call')">${iconCall()} Appel</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function logClick(listingId, kind){
+  supabaseClient.rpc('increment_click', { listing_id: listingId, kind }).then(()=>{}).catch(()=>{});
+}
+
+function shiftPhoto(cardIdx, dir){
+  const el = document.querySelector(`.carousel[data-idx="${cardIdx}"]`);
+  const imgs = [...el.querySelectorAll('img')];
+  const dots = [...el.querySelectorAll('.dots span')];
+  let current = imgs.findIndex(i => i.classList.contains('active'));
+  imgs[current].classList.remove('active');
+  dots[current] && dots[current].classList.remove('active');
+  current = (current + dir + imgs.length) % imgs.length;
+  imgs[current].classList.add('active');
+  dots[current] && dots[current].classList.add('active');
+}
+
+// ---- Publish form ----
+const fCommune = document.getElementById('f-commune');
+const fCommuneWrap = document.getElementById('f-commune-wrap');
+function fillFCommune(){
+  fCommune.innerHTML = KINSHASA_COMMUNES.map(c => `<option>${c}</option>`).join('');
+}
+fillFCommune();
+document.getElementById('f-city').addEventListener('change', e => {
+  fCommuneWrap.style.display = e.target.value === 'Kinshasa' ? 'block' : 'none';
+});
+
+function openModal(){ document.getElementById('overlay').classList.add('open'); }
+function closeModal(){ document.getElementById('overlay').classList.remove('open'); }
+document.getElementById('overlay').addEventListener('click', e=>{
+  if(e.target.id === 'overlay') closeModal();
+});
+
+document.getElementById('f-photos').addEventListener('change', async function(e){
+  const files = [...e.target.files].slice(0, 5 - pendingPhotos.length);
+  e.target.value = '';
+  for(const file of files){
+    try{
+      const compressed = await compressImage(file);
+      pendingPhotos.push({ file: compressed, previewUrl: URL.createObjectURL(compressed) });
+      renderPreviews();
+    }catch(err){
+      console.error('Compression échouée, envoi du fichier original', err);
+      pendingPhotos.push({ file, previewUrl: URL.createObjectURL(file) });
+      renderPreviews();
+    }
+  }
+});
+
+function compressImage(file, maxDim = 1600, quality = 0.82){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      let { width, height } = img;
+      if(width > maxDim || height > maxDim){
+        if(width > height){ height = Math.round(height * maxDim / width); width = maxDim; }
+        else { width = Math.round(width * maxDim / height); height = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(blob => {
+        URL.revokeObjectURL(url);
+        if(!blob){ reject(new Error('Compression impossible')); return; }
+        const newName = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+        resolve(new File([blob], newName, { type: 'image/jpeg' }));
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image illisible')); };
+    img.src = url;
+  });
+}
+
+function renderPreviews(){
+  const wrap = document.getElementById('previews');
+  wrap.innerHTML = pendingPhotos.map((p,i) => `
+    <div class="preview-thumb">
+      <img src="${p.previewUrl}">
+      <button type="button" onclick="removePreview(${i})">✕</button>
+    </div>`).join('');
+}
+function removePreview(i){
+  pendingPhotos.splice(i,1);
+  renderPreviews();
+}
+
+document.getElementById('listing-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const submitBtn = document.getElementById('submit-btn');
+  const submitBtnText = document.getElementById('submit-btn-text');
+  submitBtn.disabled = true;
+  submitBtnText.innerHTML = '<span class="spinner"></span> Publication en cours...';
+
+  try{
+    const photoUrls = [];
+    for(const p of pendingPhotos){
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2,8)}-${p.file.name}`;
+      const { error: upErr } = await supabaseClient.storage.from('photos').upload(path, p.file);
+      if(upErr) throw upErr;
+      const { data: pub } = supabaseClient.storage.from('photos').getPublicUrl(path);
+      photoUrls.push(pub.publicUrl);
+    }
+
+    if(!currentSession){
+      alert("Ta session a expiré, reconnecte-toi avant de publier.");
+      submitBtn.disabled = false;
+      submitBtnText.textContent = "Publier l'annonce";
+      return;
+    }
+    const city = document.getElementById('f-city').value;
+    const listing = {
+      user_id: currentSession.user.id,
+      title: document.getElementById('f-title').value.trim(),
+      type: document.getElementById('f-type').value,
+      transaction: document.getElementById('f-transaction').value,
+      rooms: document.getElementById('f-rooms').value || null,
+      price: document.getElementById('f-price-demande').checked ? null : (document.getElementById('f-price').value || null),
+      price_on_request: document.getElementById('f-price-demande').checked,
+      city: city,
+      commune: city === 'Kinshasa' ? document.getElementById('f-commune').value : null,
+      description: document.getElementById('f-desc').value.trim(),
+      phone: document.getElementById('f-phone').value.trim(),
+      photos: photoUrls
+    };
+
+    const { error: insErr } = await supabaseClient.from('annonces').insert(listing);
+    if(insErr) throw insErr;
+
+    this.reset();
+    pendingPhotos = [];
+    renderPreviews();
+    fCommuneWrap.style.display = 'block';
+    closeModal();
+    await render();
+    document.getElementById('listings').scrollIntoView({behavior:'smooth'});
+    openCooldownModal(12*60*60*1000);
+  }catch(err){
+    console.error(err);
+    alert("La publication a échoué : " + (err.message || "erreur inconnue") + ". Réessaie, ou retire la photo problématique si le souci persiste.");
+  }finally{
+    submitBtn.disabled = false;
+    submitBtnText.textContent = "Publier l'annonce";
+  }
+});
+
+render();
+initAuth();
+
+document.getElementById('help-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const btn = document.getElementById('help-submit-btn');
+  const btnText = document.getElementById('help-submit-text');
+  const msgEl = document.getElementById('help-msg');
+  msgEl.className = 'auth-msg';
+  msgEl.textContent = '';
+  btn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span> Envoi...';
+
+  const name = document.getElementById('help-name').value.trim();
+  const email = document.getElementById('help-email').value.trim();
+  const message = document.getElementById('help-message').value.trim();
+
+  try{
+    const { error } = await supabaseClient.from('help_messages').insert({ name, email, message });
+    if(error) throw error;
+
+    try{
+      const { data: settings } = await supabaseClient.from('settings').select('notify_email').eq('id', 1).maybeSingle();
+      if(settings?.notify_email){
+        await fetch('/api/send-help-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, message, to: settings.notify_email })
+        });
+      }
+    }catch(mailErr){ console.error('Notification email non envoyée', mailErr); }
+
+    msgEl.classList.add('success');
+    msgEl.textContent = 'Envoyé avec succès ! On te répond bientôt.';
+    this.reset();
+  }catch(err){
+    console.error(err);
+    msgEl.classList.add('error');
+    msgEl.textContent = "L'envoi a échoué : " + (err.message || 'réessaie plus tard.');
+  }finally{
+    btn.disabled = false;
+    btnText.textContent = 'Envoyer';
+  }
+});
+</script>
+</body>
+</html>

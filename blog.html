@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog — Hélice</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --navy: #1E3A4C; --sand: #F7F1E6; --card: #FFFFFF; --gold: #D99B2B;
+    --ink: #22303A; --ink-soft: #5B6B74; --line: #E3DACB;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--sand);color:var(--ink);font-family:'Work Sans', sans-serif;line-height:1.5;}
+  h1,h2,h3{font-family:'Fraunces', serif;margin:0 0 .3em 0;color:var(--navy);font-weight:600;}
+  a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
+  header.site{background:var(--navy);color:#fff;padding:16px 5vw;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces', serif;font-size:1.35rem;font-weight:700;}
+  .brand img{width:34px;height:34px;border-radius:8px;background:#fff;padding:3px;}
+  .btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,.5);color:#fff;border-radius:999px;padding:10px 18px;font-size:.9rem;}
+  .section{max-width:900px;margin:0 auto;padding:40px 5vw 70px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(260px,1fr));gap:24px;margin-top:26px;}
+  .post-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .post-cover{aspect-ratio:16/9;background:#dcd3c1;overflow:hidden;}
+  .post-cover img{width:100%;height:100%;object-fit:cover;}
+  .post-body{padding:16px;}
+  .post-title{font-weight:600;color:var(--navy);margin-bottom:6px;}
+  .post-date{color:var(--ink-soft);font-size:.8rem;}
+  .post-excerpt{color:var(--ink-soft);font-size:.88rem;margin-top:8px;}
+  .empty{text-align:center;padding:60px 20px;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <a class="brand" href="index.html"><img src="logo.png" alt="Hélice"> Hélice</a>
+  <a class="btn-outline" href="index.html">← Retour aux annonces</a>
+</header>
+
+<section class="section">
+  <h1>Blog</h1>
+  <p style="color:var(--ink-soft);">Conseils et actualités immobilières en RDC.</p>
+  <div class="grid" id="posts-grid">
+    <div class="empty">Chargement...</div>
+  </div>
+</section>
+
+<script>
+const SUPABASE_URL = 'https://habcdsgqcyfpdrnvwunz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhYmNkc2dxY3lmcGRybnZ3dW56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MDY2NDQsImV4cCI6MjEwNDA4MjY0NH0.wlJklpJ4dS9kc0Yc6ntxG81EVtnaDf_flHk3P4J3Dwk';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+async function loadPosts(){
+  const { data, error } = await supabaseClient.from('blog_posts').select('*').order('created_at', {ascending:false});
+  const grid = document.getElementById('posts-grid');
+  if(error || !data || !data.length){
+    grid.innerHTML = '<div class="empty">Aucun article pour le moment.</div>';
+    return;
+  }
+  grid.innerHTML = data.map(p => {
+    const dateLabel = new Date(p.created_at).toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric'});
+    const excerpt = (p.content || '').replace(/<[^>]+>/g,'').slice(0,120);
+    const cover = p.cover_image_url
+      ? `<div class="post-cover"><img src="${p.cover_image_url}"></div>`
+      : '';
+    return `<a class="post-card" href="blog-post.html?id=${p.id}">
+      ${cover}
+      <div class="post-body">
+        <div class="post-title">${escapeHtml(p.title)}</div>
+        <div class="post-date">${dateLabel}</div>
+        <div class="post-excerpt">${escapeHtml(excerpt)}${excerpt.length>=120?'…':''}</div>
+      </div>
+    </a>`;
+  }).join('');
+}
+loadPosts();
+</script>
+</body>
+</html>

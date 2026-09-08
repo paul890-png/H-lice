@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon profil — Hélice</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --navy: #1E3A4C; --sand: #F7F1E6; --card: #FFFFFF; --gold: #D99B2B;
+    --terracotta: #C1571F; --ink: #22303A; --ink-soft: #5B6B74; --line: #E3DACB; --danger: #D6336C;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--sand);color:var(--ink);font-family:'Work Sans', sans-serif;}
+  h1,h2,h3{font-family:'Fraunces', serif;color:var(--navy);margin:0 0 .3em;}
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  header.site{background:var(--navy);color:#fff;padding:16px 5vw;display:flex;align-items:center;justify-content:space-between;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces', serif;font-size:1.3rem;font-weight:700;text-decoration:none;color:#fff;}
+  .brand img{width:32px;height:32px;border-radius:8px;background:#fff;padding:3px;}
+  .btn{border:none;border-radius:999px;padding:10px 18px;font-weight:600;font-size:.88rem;}
+  .btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,.5);color:#fff;}
+  .btn-navy{background:var(--navy);color:#fff;}
+  .btn-gold{background:var(--gold);color:#2B1B02;}
+  .btn-danger{background:var(--danger);color:#fff;}
+  main{max-width:820px;margin:0 auto;padding:30px 5vw 70px;}
+  .login-box{max-width:380px;margin:60px auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:30px;text-align:center;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;}
+  .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+  .card-title{font-weight:600;color:var(--navy);font-size:1.02rem;}
+  .card-meta{color:var(--ink-soft);font-size:.85rem;margin-top:4px;}
+  .stats-row{display:flex;gap:16px;margin-top:10px;font-size:.85rem;color:var(--ink-soft);flex-wrap:wrap;}
+  .stats-row strong{color:var(--navy);}
+  .actions-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .actions-row button{padding:8px 14px;border-radius:8px;border:none;font-size:.82rem;font-weight:600;}
+  .locked-msg{font-size:.82rem;color:var(--ink-soft);margin-top:10px;font-style:italic;}
+  .empty{color:var(--ink-soft);text-align:center;padding:50px 20px;}
+  .overlay{position:fixed;inset:0;background:rgba(20,28,33,.55);display:none;align-items:flex-start;justify-content:center;padding:5vh 16px;overflow-y:auto;z-index:100;}
+  .overlay.open{display:flex;}
+  .modal{background:var(--card);border-radius:18px;max-width:520px;width:100%;padding:26px 24px 30px;margin-top:20px;}
+  .modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+  .modal-close{background:none;border:none;font-size:1.3rem;color:var(--ink-soft);}
+  form .field{margin-bottom:14px;}
+  form label{display:block;font-size:.85rem;font-weight:600;color:var(--navy);margin-bottom:6px;}
+  form input, form textarea, form select{width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);font-family:inherit;font-size:.92rem;}
+  form textarea{min-height:80px;resize:vertical;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--navy);color:#fff;padding:14px 22px;border-radius:999px;font-size:.9rem;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transition:all .3s ease;z-index:200;pointer-events:none;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .previews{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .preview-thumb{width:56px;height:56px;border-radius:8px;overflow:hidden;border:1px solid var(--line);}
+  .preview-thumb img{width:100%;height:100%;object-fit:cover;}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <a class="brand" href="index.html"><img src="logo.png" alt="Hélice"> Hélice</a>
+  <a class="btn btn-outline" href="index.html">← Retour au site</a>
+</header>
+
+<main>
+  <div class="login-box" id="login-required" style="display:none;">
+    <h2>Connexion requise</h2>
+    <p style="color:var(--ink-soft);">Connecte-toi depuis la page d'accueil pour accéder à ton profil.</p>
+    <a class="btn btn-navy" href="index.html" style="display:inline-block;margin-top:10px;text-decoration:none;">Aller à l'accueil</a>
+  </div>
+
+  <div id="profile-content" style="display:none;">
+    <h1>Mes annonces</h1>
+    <div id="listings-list"></div>
+  </div>
+</main>
+
+<div class="overlay" id="edit-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Modifier l'annonce</h2>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <form id="edit-form">
+      <input type="hidden" id="edit-id">
+      <div class="field"><label>Titre</label><input type="text" id="edit-title" required></div>
+      <div class="row2">
+        <div class="field"><label>Prix (USD)</label><input type="number" id="edit-price"></div>
+        <div class="field"><label>Nombre de pièces</label><input type="number" id="edit-rooms"></div>
+      </div>
+      <div class="field"><label>Description</label><textarea id="edit-desc"></textarea></div>
+      <div class="field"><label>Téléphone</label><input type="tel" id="edit-phone" required></div>
+      <div class="field">
+        <label>Ajouter des photos (remplacent les anciennes si envoyées)</label>
+        <input type="file" id="edit-photos" accept="image/*" multiple>
+        <div class="previews" id="edit-previews"></div>
+      </div>
+      <div class="field" style="margin-top:18px;">
+        <button type="submit" class="btn btn-navy" id="edit-submit-btn" style="width:100%;">Enregistrer les modifications</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://habcdsgqcyfpdrnvwunz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhYmNkc2dxY3lmcGRybnZ3dW56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MDY2NDQsImV4cCI6MjEwNDA4MjY0NH0.wlJklpJ4dS9kc0Yc6ntxG81EVtnaDf_flHk3P4J3Dwk';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentSession = null;
+let pendingEditPhotos = [];
+
+function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 3000);
+}
+
+function compressImage(file, maxDim = 1600, quality = 0.82){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      let { width, height } = img;
+      if(width > maxDim || height > maxDim){
+        if(width > height){ height = Math.round(height * maxDim / width); width = maxDim; }
+        else { width = Math.round(width * maxDim / height); height = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(blob => {
+        URL.revokeObjectURL(url);
+        if(!blob){ reject(new Error('Compression impossible')); return; }
+        resolve(new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' }));
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image illisible')); };
+    img.src = url;
+  });
+}
+
+async function init(){
+  const { data:{ session } } = await supabaseClient.auth.getSession();
+  currentSession = session;
+  if(!currentSession){
+    document.getElementById('login-required').style.display = 'block';
+    return;
+  }
+  document.getElementById('profile-content').style.display = 'block';
+  await loadMyListings();
+}
+
+async function loadMyListings(){
+  const { data, error } = await supabaseClient
+    .from('annonces')
+    .select('*')
+    .eq('user_id', currentSession.user.id)
+    .order('created_at', { ascending:false });
+  const list = document.getElementById('listings-list');
+  if(error || !data || !data.length){
+    list.innerHTML = '<div class="empty">Tu n\'as pas encore publié d\'annonce.</div>';
+    return;
+  }
+  list.innerHTML = data.map(l => {
+    const createdAt = new Date(l.created_at);
+    const editableUntil = createdAt.getTime() + 60*60*1000;
+    const canEdit = Date.now() < editableUntil;
+    const dateLabel = createdAt.toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    const priceLabel = l.price_on_request ? 'Prix sur demande' : (l.price ? '$'+Number(l.price).toLocaleString('fr-FR') : 'Prix sur demande');
+    return `
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">${escapeHtml(l.title)}</div>
+            <div class="card-meta">${priceLabel} · Publié le ${dateLabel}</div>
+          </div>
+        </div>
+        <div class="stats-row">
+          <span><strong>${l.views||0}</strong> vues</span>
+          <span><strong>${l.clicks_sms||0}</strong> SMS</span>
+          <span><strong>${l.clicks_whatsapp||0}</strong> WhatsApp</span>
+          <span><strong>${l.clicks_call||0}</strong> appels</span>
+        </div>
+        <div class="actions-row">
+          <a class="btn btn-outline" style="color:var(--navy);border-color:var(--navy);text-decoration:none;padding:8px 14px;" href="detail.html?id=${l.id}">Voir l'annonce</a>
+          ${canEdit
+            ? `<button class="btn btn-navy" onclick="openEditModal(${l.id})">Modifier</button>`
+            : `<button class="btn btn-danger" onclick="requestDeletion(${l.id})">Demande de suppression</button>`
+          }
+        </div>
+        ${canEdit ? `<div class="locked-msg">Modifiable encore ${Math.ceil((editableUntil-Date.now())/60000)} min.</div>` : `<div class="locked-msg">Délai de modification dépassé (1h) — utilise la demande de suppression pour la retirer.</div>`}
+      </div>`;
+  }).join('');
+}
+
+let editingListing = null;
+async function openEditModal(id){
+  const { data: l } = await supabaseClient.from('annonces').select('*').eq('id', id).maybeSingle();
+  if(!l) return;
+  editingListing = l;
+  pendingEditPhotos = [];
+  document.getElementById('edit-id').value = l.id;
+  document.getElementById('edit-title').value = l.title || '';
+  document.getElementById('edit-price').value = l.price || '';
+  document.getElementById('edit-rooms').value = l.rooms || '';
+  document.getElementById('edit-desc').value = l.description || '';
+  document.getElementById('edit-phone').value = l.phone || '';
+  document.getElementById('edit-previews').innerHTML = '';
+  document.getElementById('edit-overlay').classList.add('open');
+}
+function closeEditModal(){ document.getElementById('edit-overlay').classList.remove('open'); }
+
+document.getElementById('edit-photos').addEventListener('change', async function(e){
+  const files = [...e.target.files].slice(0,5);
+  pendingEditPhotos = [];
+  document.getElementById('edit-previews').innerHTML = '';
+  for(const file of files){
+    try{
+      const compressed = await compressImage(file);
+      pendingEditPhotos.push(compressed);
+      document.getElementById('edit-previews').insertAdjacentHTML('beforeend', `<div class="preview-thumb"><img src="${URL.createObjectURL(compressed)}"></div>`);
+    }catch(err){ console.error(err); }
+  }
+});
+
+document.getElementById('edit-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const id = document.getElementById('edit-id').value;
+  const btn = document.getElementById('edit-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement...';
+  try{
+    const updates = {
+      title: document.getElementById('edit-title').value.trim(),
+      price: document.getElementById('edit-price').value || null,
+      rooms: document.getElementById('edit-rooms').value || null,
+      description: document.getElementById('edit-desc').value.trim(),
+      phone: document.getElementById('edit-phone').value.trim(),
+    };
+    if(pendingEditPhotos.length){
+      const urls = [];
+      for(const file of pendingEditPhotos){
+        const path = `${Date.now()}-${Math.random().toString(36).slice(2,8)}-${file.name}`;
+        const { error: upErr } = await supabaseClient.storage.from('photos').upload(path, file);
+        if(upErr) throw upErr;
+        const { data: pub } = supabaseClient.storage.from('photos').getPublicUrl(path);
+        urls.push(pub.publicUrl);
+      }
+      updates.photos = urls;
+    }
+    const { error } = await supabaseClient.from('annonces').update(updates).eq('id', id);
+    if(error) throw error;
+    closeEditModal();
+    showToast('Envoyé avec succès');
+    await loadMyListings();
+  }catch(err){
+    console.error(err);
+    alert("La modification a échoué : " + (err.message || "délai probablement dépassé."));
+  }finally{
+    btn.disabled = false;
+    btn.textContent = 'Enregistrer les modifications';
+  }
+});
+
+async function requestDeletion(annonceId){
+  if(!confirm('Envoyer une demande de suppression pour cette annonce ?')) return;
+  const { error } = await supabaseClient.from('delete_requests').insert({
+    annonce_id: annonceId,
+    user_id: currentSession.user.id
+  });
+  if(error){
+    alert("Impossible d'envoyer la demande : " + error.message);
+    return;
+  }
+  showToast('Envoyé avec succès');
+}
+
+init();
+</script>
+</body>
+</html>
